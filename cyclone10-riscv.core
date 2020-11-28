@@ -1,0 +1,88 @@
+CAPI=2:
+name : ::cyclone10-riscv:1.0
+description: "Intel Cyclone 10 LP Evaluation Kit RISC-V SoC"
+
+filesets:
+  core_files:
+    files:
+      - sw/boot.vh: {file_type : user, copyto: boot.vh}
+      - rtl/verilog/soc_vex.v
+      - rtl/verilog/VexRiscvWishbone.v
+    file_type: verilogSource
+    depend:
+      - adv_debug_sys
+      - jtag_tap
+      - coreport
+      - or1k_bootloaders
+      - uart16550
+      - wb_ram
+
+  top_files:
+    files:
+      - backend/rtl/verilog/pll.v
+      - rtl/verilog/rst_sync.v
+      - rtl/verilog/clkgen.v
+      - rtl/verilog/cyclone10_top.v
+    file_type : verilogSource
+    depend:
+      - altera_virtual_jtag
+
+  constraints :
+    files:
+      - data/cyclone10.sdc: {file_type: SDC}
+      - data/pinmap.tcl  : {file_type: tclSource}
+
+  wb_intercon_dep:
+    depend:
+      - ">=wb_intercon-1.2.3"
+
+targets:
+  synth: &synth
+    default_tool : quartus
+    filesets   :
+      - core_files
+      - top_files
+      - constraints
+      - wb_intercon_dep
+    generate : [wb_intercon]
+    tools:
+      quartus:
+        family     : "Cyclone 10 LP"
+        device     : 10CL025YU256I7G
+    toplevel   : [cyclone10_top]
+
+  default:
+    <<: *synth
+
+generate:
+  wb_intercon:
+    generator : wb_intercon_gen
+    parameters:
+      masters:
+        ibus:
+          slaves: [rom0, ram0]
+        dbus:
+          slaves: [rom0, ram0, uart0, gpio0]
+      slaves:
+        rom0:
+          offset: 0x00000000
+          size: 1024
+        ram0:
+          offset: 0x80000000
+          size: 0x4000
+        uart0:
+          datawidth: 8
+          offset: 0x90000000
+          size: 32
+        gpio0:
+          datawidth: 4
+          offset: 0x91000000
+          size: 32
+
+
+parameters:
+  bootrom_file:
+    datatype    : file
+    description : Initial boot ROM contents (in Verilog hex format)
+    paramtype   : vlogparam
+    scope       : private
