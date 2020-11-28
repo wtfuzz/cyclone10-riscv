@@ -8,7 +8,7 @@
 
 module soc_vex
 #(
-  parameter bootrom_file = "../src/cyclone10_1.0/sw/boot.vh"
+  parameter bootrom_file = "../src/cyclone10-riscv_1.0/sw/boot.vh"
 )
 (
   input 	      wb_clk,
@@ -38,9 +38,6 @@ module soc_vex
   
   wire [3:0] dbus_sel;
   assign wb_m2s_dbus_sel = { dbus_sel[0], dbus_sel[1], dbus_sel[2], dbus_sel[3] };
-  
-  
-  assign scope[7:0] = wb_m2s_ibus_adr[7:0];
   
   wire debug_resetOut;
   
