@@ -5,11 +5,20 @@
  */
 module cyclone10_top
 (
+  // Clocks and Reset
   input 	      c10_clk50m,
   input 	      c10_resetn,
+
+  // 40 pin GPIO header
   inout  [35:0] gpio,
+
+  // 4 Green LEDs
   output [3:0]  user_led,
+
+  // 4 Push buttons
   input  [3:0]  user_pb,
+
+  // Ethernet
   input         enet_clk_125m,
   input         enet_rx_clk,
   input  [3:0]  enet_rx_d,
@@ -20,7 +29,21 @@ module cyclone10_top
   output        enet_resetn,
   output        enet_mdc,
   inout         enet_mdio,
-  input         enet_int
+  input         enet_int,
+
+  // Hyperbus
+  input         hbus_clk_50m,
+  //input         hbus_clk0p,
+  //input         hbus_clk0n,
+  output        hbus_rstn,
+  inout  [7:0]  hbus_dq,
+  inout         hbus_rwds,
+  output        hbus_cs2n,
+  // Not used (Reserved for MCP/Flash)
+  input         hbus_rston,
+  input         hbus_intn,
+  output        hbus_cs1n
+
 );
 
 assign gpio[0] = 1'b0;
