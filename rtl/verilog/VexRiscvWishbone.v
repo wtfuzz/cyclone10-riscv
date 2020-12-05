@@ -4594,9 +4594,11 @@ module VexRiscvWishbone (
 
   always @ (*) begin
     dBusWishbone_SEL = (_zz_138_ <<< dBus_cmd_halfPipe_payload_address[1 : 0]);
+    /*
     if((! dBus_cmd_halfPipe_payload_wr))begin
       dBusWishbone_SEL = (4'b1111);
     end
+    */
   end
 
   assign dBusWishbone_WE = dBus_cmd_halfPipe_payload_wr;

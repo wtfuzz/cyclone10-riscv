@@ -33,8 +33,8 @@ module cyclone10_top
 
   // Hyperbus
   input         hbus_clk_50m,
-  //input         hbus_clk0p,
-  //input         hbus_clk0n,
+  output        hbus_clk0p,
+  output        hbus_clk0n,
   output        hbus_rstn,
   inout  [7:0]  hbus_dq,
   inout         hbus_rwds,
@@ -42,12 +42,24 @@ module cyclone10_top
   // Not used (Reserved for MCP/Flash)
   input         hbus_rston,
   input         hbus_intn,
-  output        hbus_cs1n
+  output        hbus_cs1n,
+
+  inout [13:0]  arduino_io
 
 );
 
 assign gpio[0] = 1'b0;
 assign gpio[9] = 1'b0;
+
+// Pull arduino_io[8] to ground for the ground pin of the serial converter
+assign arduino_io[8] = 1'b0;
+// CTS
+assign arduino_io[9] = 1'b0;
+
+// Input from 3.3 Vout on serial converter
+assign arduino_io[10] = 1'bz;
+
+
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -66,6 +78,23 @@ clkgen clkgen0
   .wb_clk_o      (wb_clk),
   .wb_rst_o      (wb_rst),
 );
+
+
+/** HyperRAM */
+assign hbus_clk0n = ~hbus_clk0p;
+hyperbus
+#(
+  .TARGET("ALTERA"),
+  .WIDTH(8)
+) hyperram0 (
+  .clk          (hbus_clk_50m),
+  .hbus_clk     (hbus_clk0p),
+  .hbus_csn     (hbus_cs2n),
+  .hbus_dq      (hbus_dq),
+  .hbus_rwds    (hbus_rwds),
+  .hbus_rstn    (hbus_rstn)
+);
+
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -93,7 +122,8 @@ altera_virtual_jtag jtag_tap0
   .capture_dr_o		(jtag_tap_capture_dr),
   .pause_dr_o		(jtag_tap_pause_dr),
   .update_dr_o		(jtag_tap_update_dr),
-  .debug_select_o		(dbg_if_select));
+  .debug_select_o		(dbg_if_select)
+);
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -120,8 +150,8 @@ soc_vex core
   .jtag_tap_update_dr_i  (jtag_tap_update_dr),
   .jtag_tap_capture_dr_i (jtag_tap_capture_dr),
 
-  .uart0_srx_pad_i	(gpio[5]),
-  .uart0_stx_pad_o	(gpio[3]),
+  .uart0_srx_pad_i	(arduino_io[11]),
+  .uart0_stx_pad_o	(arduino_io[12]),
 
   .gpio0_io (user_led[3:0])
 );

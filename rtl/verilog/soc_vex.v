@@ -33,13 +33,19 @@ module soc_vex
   `include "wb_intercon.vh"
 
   // Endian swap the wishbone sel bits
+  /*
   wire [3:0] ibus_sel;
   assign wb_m2s_ibus_sel = { ibus_sel[0], ibus_sel[1], ibus_sel[2], ibus_sel[3] };
   
   wire [3:0] dbus_sel;
-  assign wb_m2s_dbus_sel = { dbus_sel[0], dbus_sel[1], dbus_sel[2], dbus_sel[3] };
+  assign wb_m2s_dbus_sel = wb_m2s_ram0_cyc ? { dbus_sel[3], dbus_sel[2], dbus_sel[1], dbus_sel[0] } :
+                                             { dbus_sel[0], dbus_sel[1], dbus_sel[2], dbus_sel[3] };
+  */
   
   wire debug_resetOut;
+
+  assign wb_m2s_ibus_adr[1:0] = 2'b0;
+  assign wb_m2s_dbus_adr[1:0] = 2'b0;
   
   VexRiscvWishbone cpu0
   (
@@ -60,7 +66,7 @@ module soc_vex
     .iBusWishbone_ADR         (wb_m2s_ibus_adr[31:2]),
     .iBusWishbone_DAT_MISO    (wb_s2m_ibus_dat),
     .iBusWishbone_DAT_MOSI    (wb_m2s_ibus_dat),
-    .iBusWishbone_SEL         (ibus_sel),
+    .iBusWishbone_SEL         (wb_m2s_ibus_sel),
     .iBusWishbone_ERR         (wb_s2m_ibus_err),
   
     .dBusWishbone_CYC         (wb_m2s_dbus_cyc),
@@ -70,7 +76,7 @@ module soc_vex
     .dBusWishbone_ADR         (wb_m2s_dbus_adr[31:2]),
     .dBusWishbone_DAT_MISO    (wb_s2m_dbus_dat),
     .dBusWishbone_DAT_MOSI    (wb_m2s_dbus_dat),
-    .dBusWishbone_SEL         (dbus_sel),
+    .dBusWishbone_SEL         (wb_m2s_dbus_sel),
     .dBusWishbone_ERR         (wb_s2m_dbus_err)
   );
  
@@ -85,7 +91,7 @@ module soc_vex
     .wb_we_i  (wb_m2s_uart0_we), 
     .wb_stb_i (wb_m2s_uart0_stb),
     .wb_cyc_i (wb_m2s_uart0_cyc),
-    .wb_sel_i (4'b0), // Not used in 8-bit mode
+    .wb_sel_i (4'b1111), // Not used in 8-bit mode
     .wb_dat_o (wb_s2m_uart0_dat),
     .wb_ack_o (wb_s2m_uart0_ack),
   
@@ -103,6 +109,8 @@ module soc_vex
     .dcd_pad_i  (1'b0)
   );
   
+  assign wb_s2m_uart0_rty = 1'b0;
+  assign wb_s2m_uart0_err = 1'b0;
   
   /** Coreport GPIO Peripheral */
   coreport #(
@@ -131,28 +139,32 @@ module soc_vex
   
   /** RAM */
   wb_ram #(
-    .depth(16384)
+    .depth(8192)
   )
   ram0
   (
     .wb_clk_i (wb_clk),
     .wb_rst_i (wb_rst),
-    .wb_adr_i (wb_m2s_ram_adr),
-    .wb_cyc_i (wb_m2s_ram_cyc),
-    .wb_stb_i (wb_m2s_ram_stb),
-    .wb_dat_o (wb_s2m_ram_dat),
-    .wb_ack_o (wb_s2m_ram_ack)
+    .wb_adr_i (wb_m2s_ram0_adr),
+    .wb_dat_i (wb_m2s_ram0_dat),
+    .wb_sel_i (wb_m2s_ram0_sel),
+    .wb_cti_i (wb_m2s_ram0_cti),
+    .wb_bte_i (wb_m2s_ram0_bte),
+    .wb_we_i  (wb_m2s_ram0_we),
+    .wb_cyc_i (wb_m2s_ram0_cyc),
+    .wb_stb_i (wb_m2s_ram0_stb),
+    .wb_dat_o (wb_s2m_ram0_dat),
+    .wb_ack_o (wb_s2m_ram0_ack),
+    .wb_err_o (wb_s2m_ram0_err)
   );
   
-  assign wb_s2m_ram_err = 1'b0;
   assign wb_s2m_ram_rty = 1'b0;
   
   /** ROM */
-  localparam WB_BOOTROM_MEM_DEPTH = 1024;
-  
   wb_bootrom
   #(
-    .DEPTH (WB_BOOTROM_MEM_DEPTH),
+    .DEPTH (16384),
+    .WB_AW (32),
     .MEMFILE (bootrom_file)
   )
   rom0

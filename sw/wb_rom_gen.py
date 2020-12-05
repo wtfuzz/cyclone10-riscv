@@ -15,8 +15,7 @@ with open(infile, "rb") as f:
     rom_contents = ""
     while word:
         data = unpack('<I', word)[0]
-        if not data == 0:
-            rom_contents += "{data:08X}\n".format(data=data)
+        rom_contents += "{data:08X}\n".format(data=data)
         word = f.read(4)
         addr += 1
     outfile.write(BLOCK.format(rom_contents=rom_contents))

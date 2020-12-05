@@ -16,6 +16,7 @@ filesets:
       - or1k_bootloaders
       - uart16550
       - wb_ram
+      - hyperbus
 
   top_files:
     files:
@@ -34,7 +35,7 @@ filesets:
 
   wb_intercon_dep:
     depend:
-      - ">=wb_intercon-1.2.3"
+      - ">=wb_intercon-1.3.0"
 
 targets:
   synth: &synth
@@ -58,6 +59,7 @@ generate:
   wb_intercon:
     generator : wb_intercon_gen
     parameters:
+      endian: little
       masters:
         ibus:
           slaves: [rom0, ram0]
@@ -65,15 +67,17 @@ generate:
           slaves: [rom0, ram0, uart0, gpio0]
       slaves:
         rom0:
-          offset: 0x00000000
-          size: 1024
+          datawidth: 32
+          offset: 0x0
+          size: 16384
         ram0:
+          datawidth: 32
           offset: 0x80000000
-          size: 0x4000
+          size: 8192
         uart0:
           datawidth: 8
           offset: 0x90000000
-          size: 32
+          size: 128
         gpio0:
           datawidth: 4
           offset: 0x91000000

@@ -1,5 +1,6 @@
 # Main system clock (50 Mhz)
 create_clock -name "c10_clk50m" -period 20.000ns [get_ports {c10_clk50m}]
+create_clock -name "hbus_clk_50m" -period 20.000ns [get_ports {c10_clk_50m}]
 create_clock -name "enet_clk_125m" -period 8.000ns [get_ports {enet_clk_125m}]
 create_clock -name "enet_rx_clk" -period 8.000ns [get_ports {enet_rx_clk}]
 
