@@ -8,7 +8,7 @@ all: $(TARGET).vh $(TARGET).bin
 
 boot.elf: crt.o rom.o tinyprintf.o
 	riscv32-unknown-elf-gcc $(CFLAGS) $^ -o $@ $(LDFLAGS)
-	riscv32-unknown-elf-strip -s -R .comment -R .gnu.version --strip-unneeded $@
+	#riscv32-unknown-elf-strip -s -R .comment -R .gnu.version --strip-unneeded $@
 	riscv32-unknown-elf-size $@
 
 %.vh: %.bin

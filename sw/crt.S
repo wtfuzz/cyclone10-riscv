@@ -3,7 +3,7 @@
 
 .global crtStart
 .global main
-.global irqCallback
+.global trap_callback
 
 .section	.start_jump,"ax",@progbits
 
@@ -32,7 +32,7 @@ crtStart:
 .section .text
 
 .global  trap_entry
-.align 5
+.align 8
 trap_entry:
   sw x1,  - 1*4(sp)
   sw x5,  - 2*4(sp)
@@ -51,7 +51,7 @@ trap_entry:
   sw x30, -15*4(sp)
   sw x31, -16*4(sp)
   addi sp,sp,-16*4
-  call irqCallback
+  call trap_callback
   lw x1 , 15*4(sp)
   lw x5,  14*4(sp)
   lw x6,  13*4(sp)
@@ -117,12 +117,12 @@ ctors_done:
   sb t0, 0x0(a2)
   addi sp,sp,4
 
-/*
+  /*
   li a0, 0x880     //880 enable timer + external interrupts
   csrw mie,a0
   li a0, 0x1808     //1808 enable interrupts
   csrw mstatus,a0
-*/
+  */
 
   li t0, 0x5
   sb t0, 0x0(a2)

@@ -3,9 +3,34 @@
 #include <inttypes.h>
 #include <string.h>
 #include "tinyprintf.h"
+#include "riscv.h"
+
+typedef struct _evt_t
+{
+    uint8_t set;
+    uint16_t mod;
+    void (*callback)(void *data);
+    void *data;
+} evt_t;
+
+#define MAX_TIMERS 8
+static evt_t timers[MAX_TIMERS];
+
+#define MCAUSE_INT_MASK     (0x80000000)
+#define MCAUSE_CODE_MASK    (0x7FFFFFFF)
+#define IRQ_SOFT            (3)
+#define IRQ_TIMER           (7)
+#define IRQ_EXTERNAL        (11)
+
+// trap_entry in crt.S
+extern void trap_entry();
+extern const uint32_t _stack_start;
 
 #define GPIO_BASE ((uint32_t *)0x91000000)
 #define UART_BASE ((uint8_t *)0x90000000)
+
+// Tick timer incremented every millisecond by the timer interrupt
+uint64_t tick;
 
 enum {
     UART_RBR      = 0x00,  /* Receive Buffer Register */
@@ -52,7 +77,47 @@ static void gpio_write(uint8_t x)
     *((uint8_t *)gpio) = x;
 }
 
-void irqCallback(){
+void timer_callback()
+{
+    tick++;
+
+    for(int i=0;i<MAX_TIMERS;i++)
+    {
+        if(timers[i].set)
+        {
+            if(tick % timers[i].mod == 0)
+            {
+                (*timers[i].callback)(timers[i].data);
+            }
+        }
+    }
+}
+
+void trap_callback() {
+    uint32_t cause = csr_read(mcause);
+    uint32_t code = cause & MCAUSE_CODE_MASK;
+
+    if(cause & MCAUSE_INT_MASK)
+    {
+        switch(code)
+        {
+            case IRQ_TIMER:
+                timer_callback();
+                break;
+            case IRQ_EXTERNAL:
+                printf("External interrupt\n");
+                break;
+            default:
+                printf("Unhandled IRQ %ld\n", code);
+        }
+    } else {
+        printf("Trap code %ld\n", code);
+    }
+
+    //csr_set(sip, MIP_STIP);
+    //csr_clear(mie, MIE_MTIE);
+
+    //csr_clear(mstatus, MSTATUS_MIE);
 }
 
 //void _putchar(char ch)
@@ -62,44 +127,52 @@ void _putc(void *p, char ch)
     uart[UART_THR] = ch;
 }
 
+int init_trap()
+{
+    // Set mtvec to trap_entry in crt.S
+    uint32_t sp = (uint32_t) (&_stack_start);
+    printf("Stack start: %p\n", &_stack_start);
+    printf("Trap Entry: %p\n", trap_entry);
+    tick = 0;
+    csr_write(mtvec, trap_entry);
+    csr_write(mscratch, sp -32*4);
+    //csr_write(mstatus, 0x0800 | MSTATUS_MPIE);
+    //csr_write(mie, 0x880);
+
+    csr_write(mie, 0x880);
+    csr_write(mstatus, 0x1808);
+
+    return 0;
+}
+
+void status_timer(void *data)
+{
+    printf("Status Timer. Uptime: %d\n", (int)(tick/1000));
+}
+
 int main()
 {
-    char buf[32];
-    //void *p = malloc(128);
     int c = 0;
 
+    gpio_write(0x6);
     init_printf(NULL, _putc);
 
-    uart[UART_THR] = '=';
-
     printf("\r\nRISC-V Booting\r\n");
-    printf("buf=%p\r\n", buf);
 
+    init_trap();
 
-    gpio_write(0x6);
+    gpio_write(0x7);
 
+    timers[0].set = 1;
+    timers[0].mod = 1000;
+    timers[0].callback = status_timer;
+    timers[0].data = NULL;
 
     while(1)
     {
         c++;
-        memset(buf, 'a', 8);
 
-        printf("buf=%s\n", buf);
-        buf[0] += 1;
-        buf[1] += 2;
-        buf[2] += 3;
-        buf[3] += 4;
-        printf("buf=%s\n", buf);
-
-        printf("%x\r\n", uart[0]);
-        printf("%x\r\n", uart[1]);
-        printf("%x\r\n", uart[2]);
-        printf("%x\r\n", uart[3]);
-        printf("%x\r\n", uart[4]);
-        printf("%x\r\n", uart[5]);
-        printf("%x\r\n", uart[6]);
-
-        printf("Count: %d\n", c);
+        printf("Count: %d Tick: %lld\n", c, tick);
 
         gpio_write(0x1);
         _delay(200);

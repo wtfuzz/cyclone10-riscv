@@ -26,6 +26,7 @@ module soc_vex
   input         uart0_srx_pad_i,
   output 	      uart0_stx_pad_o,
 
+  input [3:0]   button,
   inout [7:0] 	gpio0_io,
   input [3:0] 	gpio1_i
 );
@@ -46,6 +47,8 @@ module soc_vex
 
   assign wb_m2s_ibus_adr[1:0] = 2'b0;
   assign wb_m2s_dbus_adr[1:0] = 2'b0;
+
+  wire timer_int;
   
   VexRiscvWishbone cpu0
   (
@@ -53,6 +56,10 @@ module soc_vex
     .reset		                (wb_rst | debug_resetOut),
     .debugReset               (wb_rst),
     .debug_resetOut           (debug_resetOut),
+
+    .timerInterrupt           (timer_int),
+    .externalInterrupt        (~button[1]),
+    .softwareInterrupt        (~button[2]),
   
     .jtag_tms                 (jtag_tms),
     .jtag_tdi                 (dbg_if_tdo_o),
@@ -79,6 +86,17 @@ module soc_vex
     .dBusWishbone_SEL         (wb_m2s_dbus_sel),
     .dBusWishbone_ERR         (wb_s2m_dbus_err)
   );
+
+  reg [15:0] tick_reg;
+
+  assign timer_int = tick_reg < 16'd5 ? 1'b1 : 1'b0;
+
+  always @(negedge wb_clk) begin : tick_timer
+    tick_reg <= tick_reg + 16'd1;
+    if(tick_reg == 16'd50000) begin
+      tick_reg <= 16'd0;
+    end
+  end
  
   /** UART */
   uart_top uart0

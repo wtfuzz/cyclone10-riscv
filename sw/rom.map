@@ -1,9 +1,9 @@
 Archive member included to satisfy reference by file (symbol)
 
 /opt/riscv32i/lib/gcc/riscv32-unknown-elf/10.2.0/libgcc.a(_udivdi3.o)
-                              tinyprintf.o (__udivdi3)
+                              rom.o (__udivdi3)
 /opt/riscv32i/lib/gcc/riscv32-unknown-elf/10.2.0/libgcc.a(_umoddi3.o)
-                              tinyprintf.o (__umoddi3)
+                              rom.o (__umoddi3)
 /opt/riscv32i/lib/gcc/riscv32-unknown-elf/10.2.0/libgcc.a(muldi3.o)
                               /opt/riscv32i/lib/gcc/riscv32-unknown-elf/10.2.0/libgcc.a(_udivdi3.o) (__mulsi3)
 /opt/riscv32i/lib/gcc/riscv32-unknown-elf/10.2.0/libgcc.a(div.o)
@@ -23,146 +23,151 @@ Linker script and memory map
 LOAD crt.o
 LOAD rom.o
 LOAD tinyprintf.o
-                0x0000000000000200                _stack_size = DEFINED (_stack_size)?_stack_size:0x200
+                0x0000000000000400                _stack_size = DEFINED (_stack_size)?_stack_size:0x400
                 0x0000000000000400                _heap_size = DEFINED (_heap_size)?_heap_size:0x400
 
-._vector        0x0000000000000000      0x19c
+._vector        0x0000000000000000      0x2fc
  *crt.o(.start_jump)
  .start_jump    0x0000000000000000       0x28 crt.o
                 0x0000000000000000                crtStart
  *crt.o(.text)
- *fill*         0x0000000000000028       0x18 
- .text          0x0000000000000040      0x15c crt.o
-                0x0000000000000040                trap_entry
+ *fill*         0x0000000000000028       0xd8 
+ .text          0x0000000000000100      0x1fc crt.o
+                0x0000000000000100                trap_entry
 
-.program        0x000000000000019c     0x1534
-                0x000000000000019c                . = ALIGN (0x4)
+.program        0x00000000000002fc     0x16e0
+                0x00000000000002fc                . = ALIGN (0x4)
  *(.text)
- .text          0x000000000000019c       0x6c rom.o
-                0x00000000000001ec                _putc
-                0x0000000000000204                irqCallback
- .text          0x0000000000000208      0x928 tinyprintf.o
-                0x0000000000000608                tfp_format
-                0x00000000000009bc                init_printf
-                0x00000000000009d0                tfp_printf
-                0x0000000000000a20                tfp_vsnprintf
-                0x0000000000000a80                tfp_snprintf
-                0x0000000000000ab4                tfp_vsprintf
-                0x0000000000000af8                tfp_sprintf
- .text          0x0000000000000b30      0x5d8 /opt/riscv32i/lib/gcc/riscv32-unknown-elf/10.2.0/libgcc.a(_udivdi3.o)
-                0x0000000000000b30                __udivdi3
- .text          0x0000000000001108      0x4f0 /opt/riscv32i/lib/gcc/riscv32-unknown-elf/10.2.0/libgcc.a(_umoddi3.o)
-                0x0000000000001108                __umoddi3
- .text          0x00000000000015f8       0x24 /opt/riscv32i/lib/gcc/riscv32-unknown-elf/10.2.0/libgcc.a(muldi3.o)
-                0x00000000000015f8                __mulsi3
- .text          0x000000000000161c       0xb4 /opt/riscv32i/lib/gcc/riscv32-unknown-elf/10.2.0/libgcc.a(div.o)
-                0x000000000000161c                __divsi3
-                0x0000000000001624                __udivsi3
-                0x000000000000166c                __umodsi3
-                0x00000000000016a0                __modsi3
- .text          0x00000000000016d0        0x0 /opt/riscv32i/lib/gcc/riscv32-unknown-elf/10.2.0/libgcc.a(_clz.o)
-                0x00000000000016d0                end = .
-                0x00000000000016d0                . = ALIGN (0x4)
+ .text          0x00000000000002fc      0x210 rom.o
+                0x000000000000034c                _putc
+                0x0000000000000364                status_timer
+                0x000000000000039c                timer_callback
+                0x0000000000000430                trap_callback
+                0x0000000000000478                init_trap
+ .text          0x000000000000050c      0x930 tinyprintf.o
+                0x000000000000090c                tfp_format
+                0x0000000000000cc0                init_printf
+                0x0000000000000cd4                tfp_printf
+                0x0000000000000d24                tfp_vsnprintf
+                0x0000000000000d88                tfp_snprintf
+                0x0000000000000dbc                tfp_vsprintf
+                0x0000000000000e04                tfp_sprintf
+ .text          0x0000000000000e3c      0x5d8 /opt/riscv32i/lib/gcc/riscv32-unknown-elf/10.2.0/libgcc.a(_udivdi3.o)
+                0x0000000000000e3c                __udivdi3
+ .text          0x0000000000001414      0x4f0 /opt/riscv32i/lib/gcc/riscv32-unknown-elf/10.2.0/libgcc.a(_umoddi3.o)
+                0x0000000000001414                __umoddi3
+ .text          0x0000000000001904       0x24 /opt/riscv32i/lib/gcc/riscv32-unknown-elf/10.2.0/libgcc.a(muldi3.o)
+                0x0000000000001904                __mulsi3
+ .text          0x0000000000001928       0xb4 /opt/riscv32i/lib/gcc/riscv32-unknown-elf/10.2.0/libgcc.a(div.o)
+                0x0000000000001928                __divsi3
+                0x0000000000001930                __udivsi3
+                0x0000000000001978                __umodsi3
+                0x00000000000019ac                __modsi3
+ .text          0x00000000000019dc        0x0 /opt/riscv32i/lib/gcc/riscv32-unknown-elf/10.2.0/libgcc.a(_clz.o)
+                0x00000000000019dc                end = .
+                0x00000000000019dc                . = ALIGN (0x4)
 
-.text.startup   0x00000000000016d0      0x178
- .text.startup  0x00000000000016d0      0x178 rom.o
-                0x00000000000016d0                main
+.text.startup   0x00000000000019dc       0xbc
+ .text.startup  0x00000000000019dc       0xbc rom.o
+                0x00000000000019dc                main
 
-.rodata         0x0000000000001848      0x194
+.rodata         0x0000000000001a98      0x1fc
  *(.rdata)
  *(.rodata .rodata.*)
- .rodata        0x0000000000001848       0x3b rom.o
- *fill*         0x0000000000001883        0x1 
- .rodata        0x0000000000001884       0x58 tinyprintf.o
- .rodata        0x00000000000018dc      0x100 /opt/riscv32i/lib/gcc/riscv32-unknown-elf/10.2.0/libgcc.a(_clz.o)
-                0x00000000000018dc                __clz_tab
+ .rodata        0x0000000000001a98       0xa2 rom.o
+ *fill*         0x0000000000001b3a        0x2 
+ .rodata        0x0000000000001b3c       0x58 tinyprintf.o
+ .rodata        0x0000000000001b94      0x100 /opt/riscv32i/lib/gcc/riscv32-unknown-elf/10.2.0/libgcc.a(_clz.o)
+                0x0000000000001b94                __clz_tab
  *(.gnu.linkonce.r.*)
 
-.eh_frame       0x00000000000019dc       0xb0
- .eh_frame      0x00000000000019dc       0x60 /opt/riscv32i/lib/gcc/riscv32-unknown-elf/10.2.0/libgcc.a(_udivdi3.o)
- .eh_frame      0x0000000000001a3c       0x50 /opt/riscv32i/lib/gcc/riscv32-unknown-elf/10.2.0/libgcc.a(_umoddi3.o)
+.eh_frame       0x0000000000001c94       0xb0
+ .eh_frame      0x0000000000001c94       0x60 /opt/riscv32i/lib/gcc/riscv32-unknown-elf/10.2.0/libgcc.a(_udivdi3.o)
+ .eh_frame      0x0000000000001cf4       0x50 /opt/riscv32i/lib/gcc/riscv32-unknown-elf/10.2.0/libgcc.a(_umoddi3.o)
                                          0x64 (size before relaxing)
 
-.rela.dyn       0x0000000000001a8c        0x0
- .rela.text     0x0000000000001a8c        0x0 crt.o
+.rela.dyn       0x0000000000001d44        0x0
+ .rela.text     0x0000000000001d44        0x0 crt.o
 
-.noinit         0x0000000000001a8c        0x0
-                0x0000000000001a8c                . = ALIGN (0x4)
+.noinit         0x0000000000001d44        0x0
+                0x0000000000001d44                . = ALIGN (0x4)
  *(.noinit .noinit.*)
-                0x0000000000001a8c                . = ALIGN (0x4)
+                0x0000000000001d44                . = ALIGN (0x4)
 
-.data           0x0000000000001a8c        0x4
+.data           0x0000000000001d44        0x4
  *(.rdata)
  *(.rodata .rodata.*)
  *(.gnu.linkonce.r.*)
  *(.data .data.*)
- .data          0x0000000000001a8c        0x0 crt.o
- .data          0x0000000000001a8c        0x0 rom.o
- .data          0x0000000000001a8c        0x0 tinyprintf.o
- .data          0x0000000000001a8c        0x0 /opt/riscv32i/lib/gcc/riscv32-unknown-elf/10.2.0/libgcc.a(_udivdi3.o)
- .data          0x0000000000001a8c        0x0 /opt/riscv32i/lib/gcc/riscv32-unknown-elf/10.2.0/libgcc.a(_umoddi3.o)
- .data          0x0000000000001a8c        0x0 /opt/riscv32i/lib/gcc/riscv32-unknown-elf/10.2.0/libgcc.a(muldi3.o)
- .data          0x0000000000001a8c        0x0 /opt/riscv32i/lib/gcc/riscv32-unknown-elf/10.2.0/libgcc.a(div.o)
- .data          0x0000000000001a8c        0x0 /opt/riscv32i/lib/gcc/riscv32-unknown-elf/10.2.0/libgcc.a(_clz.o)
+ .data          0x0000000000001d44        0x0 crt.o
+ .data          0x0000000000001d44        0x0 rom.o
+ .data          0x0000000000001d44        0x0 tinyprintf.o
+ .data          0x0000000000001d44        0x0 /opt/riscv32i/lib/gcc/riscv32-unknown-elf/10.2.0/libgcc.a(_udivdi3.o)
+ .data          0x0000000000001d44        0x0 /opt/riscv32i/lib/gcc/riscv32-unknown-elf/10.2.0/libgcc.a(_umoddi3.o)
+ .data          0x0000000000001d44        0x0 /opt/riscv32i/lib/gcc/riscv32-unknown-elf/10.2.0/libgcc.a(muldi3.o)
+ .data          0x0000000000001d44        0x0 /opt/riscv32i/lib/gcc/riscv32-unknown-elf/10.2.0/libgcc.a(div.o)
+ .data          0x0000000000001d44        0x0 /opt/riscv32i/lib/gcc/riscv32-unknown-elf/10.2.0/libgcc.a(_clz.o)
  *(.gnu.linkonce.d.*)
-                0x0000000000001a90                . = ALIGN (0x8)
- *fill*         0x0000000000001a8c        0x4 
-                0x0000000000002290                PROVIDE (__global_pointer$ = (. + 0x800))
+                0x0000000000001d48                . = ALIGN (0x8)
+ *fill*         0x0000000000001d44        0x4 
+                0x0000000000002548                PROVIDE (__global_pointer$ = (. + 0x800))
  *(.sdata .sdata.*)
  *(.gnu.linkonce.s.*)
-                0x0000000000001a90                . = ALIGN (0x8)
+                0x0000000000001d48                . = ALIGN (0x8)
  *(.srodata.cst16)
  *(.srodata.cst8)
  *(.srodata.cst4)
  *(.srodata.cst2)
  *(.srodata .srodata.*)
 
-._stack         0x0000000080000000      0x200
+._stack         0x0000000080000000      0x400
                 0x0000000080000000                . = ALIGN (0x10)
                 [!provide]                        PROVIDE (_stack_end = .)
-                0x0000000080000200                . = (. + _stack_size)
- *fill*         0x0000000080000000      0x200 
-                0x0000000080000200                . = ALIGN (0x10)
-                0x0000000080000200                PROVIDE (_stack_start = .)
+                0x0000000080000400                . = (. + _stack_size)
+ *fill*         0x0000000080000000      0x400 
+                0x0000000080000400                . = ALIGN (0x10)
+                0x0000000080000400                PROVIDE (_stack_start = .)
 
-.bss            0x0000000080000200        0x8
-                0x0000000080000200                . = ALIGN (0x4)
-                0x0000000080000200                _bss_start = .
+.bss            0x0000000080000400       0x70
+                0x0000000080000400                . = ALIGN (0x4)
+                0x0000000080000400                _bss_start = .
  *(.sbss*)
- .sbss          0x0000000080000200        0x8 tinyprintf.o
+ .sbss          0x0000000080000400        0x8 rom.o
+                0x0000000080000400                tick
+ .sbss          0x0000000080000408        0x8 tinyprintf.o
  *(.gnu.linkonce.sb.*)
  *(.bss .bss.*)
- .bss           0x0000000080000208        0x0 crt.o
- .bss           0x0000000080000208        0x0 rom.o
- .bss           0x0000000080000208        0x0 tinyprintf.o
- .bss           0x0000000080000208        0x0 /opt/riscv32i/lib/gcc/riscv32-unknown-elf/10.2.0/libgcc.a(_udivdi3.o)
- .bss           0x0000000080000208        0x0 /opt/riscv32i/lib/gcc/riscv32-unknown-elf/10.2.0/libgcc.a(_umoddi3.o)
- .bss           0x0000000080000208        0x0 /opt/riscv32i/lib/gcc/riscv32-unknown-elf/10.2.0/libgcc.a(muldi3.o)
- .bss           0x0000000080000208        0x0 /opt/riscv32i/lib/gcc/riscv32-unknown-elf/10.2.0/libgcc.a(div.o)
- .bss           0x0000000080000208        0x0 /opt/riscv32i/lib/gcc/riscv32-unknown-elf/10.2.0/libgcc.a(_clz.o)
+ .bss           0x0000000080000410        0x0 crt.o
+ .bss           0x0000000080000410       0x60 rom.o
+ .bss           0x0000000080000470        0x0 tinyprintf.o
+ .bss           0x0000000080000470        0x0 /opt/riscv32i/lib/gcc/riscv32-unknown-elf/10.2.0/libgcc.a(_udivdi3.o)
+ .bss           0x0000000080000470        0x0 /opt/riscv32i/lib/gcc/riscv32-unknown-elf/10.2.0/libgcc.a(_umoddi3.o)
+ .bss           0x0000000080000470        0x0 /opt/riscv32i/lib/gcc/riscv32-unknown-elf/10.2.0/libgcc.a(muldi3.o)
+ .bss           0x0000000080000470        0x0 /opt/riscv32i/lib/gcc/riscv32-unknown-elf/10.2.0/libgcc.a(div.o)
+ .bss           0x0000000080000470        0x0 /opt/riscv32i/lib/gcc/riscv32-unknown-elf/10.2.0/libgcc.a(_clz.o)
  *(.gnu.linkonce.b.*)
  *(COMMON)
-                0x0000000080000208                . = ALIGN (0x4)
-                0x0000000080000208                _bss_end = .
+                0x0000000080000470                . = ALIGN (0x4)
+                0x0000000080000470                _bss_end = .
 
-.ctors          0x0000000080000208        0x0
-                0x0000000080000208                . = ALIGN (0x4)
-                0x0000000080000208                _ctors_start = .
+.ctors          0x0000000080000470        0x0
+                0x0000000080000470                . = ALIGN (0x4)
+                0x0000000080000470                _ctors_start = .
  *(.init_array*)
  *(SORT_BY_NAME(.ctors.*))
  *(.ctors)
-                0x0000000080000208                . = ALIGN (0x4)
-                0x0000000080000208                _ctors_end = .
+                0x0000000080000470                . = ALIGN (0x4)
+                0x0000000080000470                _ctors_end = .
                 [!provide]                        PROVIDE (END_OF_SW_IMAGE = .)
 
-._user_heap     0x0000000080000208      0x400
-                0x0000000080000208                . = ALIGN (0x8)
+._user_heap     0x0000000080000470      0x400
+                0x0000000080000470                . = ALIGN (0x8)
                 [!provide]                        PROVIDE (end = .)
                 [!provide]                        PROVIDE (_end = .)
                 [!provide]                        PROVIDE (_heap_start = .)
-                0x0000000080000608                . = (. + _heap_size)
- *fill*         0x0000000080000208      0x400 
-                0x0000000080000608                . = ALIGN (0x8)
+                0x0000000080000870                . = (. + _heap_size)
+ *fill*         0x0000000080000470      0x400 
+                0x0000000080000870                . = ALIGN (0x8)
                 [!provide]                        PROVIDE (_heap_end = .)
 LOAD /opt/riscv32i/lib/gcc/riscv32-unknown-elf/10.2.0/libgcc.a
 START GROUP
@@ -177,19 +182,19 @@ OUTPUT(boot.elf elf32-littleriscv)
  .riscv.attributes
                 0x0000000000000000       0x23 crt.o
  .riscv.attributes
-                0x0000000000000023       0x21 rom.o
+                0x0000000000000023       0x25 rom.o
  .riscv.attributes
-                0x0000000000000044       0x21 tinyprintf.o
+                0x0000000000000048       0x21 tinyprintf.o
  .riscv.attributes
-                0x0000000000000065       0x1c /opt/riscv32i/lib/gcc/riscv32-unknown-elf/10.2.0/libgcc.a(_udivdi3.o)
+                0x0000000000000069       0x1c /opt/riscv32i/lib/gcc/riscv32-unknown-elf/10.2.0/libgcc.a(_udivdi3.o)
  .riscv.attributes
-                0x0000000000000081       0x1c /opt/riscv32i/lib/gcc/riscv32-unknown-elf/10.2.0/libgcc.a(_umoddi3.o)
+                0x0000000000000085       0x1c /opt/riscv32i/lib/gcc/riscv32-unknown-elf/10.2.0/libgcc.a(_umoddi3.o)
  .riscv.attributes
-                0x000000000000009d       0x1a /opt/riscv32i/lib/gcc/riscv32-unknown-elf/10.2.0/libgcc.a(muldi3.o)
+                0x00000000000000a1       0x1a /opt/riscv32i/lib/gcc/riscv32-unknown-elf/10.2.0/libgcc.a(muldi3.o)
  .riscv.attributes
-                0x00000000000000b7       0x1a /opt/riscv32i/lib/gcc/riscv32-unknown-elf/10.2.0/libgcc.a(div.o)
+                0x00000000000000bb       0x1a /opt/riscv32i/lib/gcc/riscv32-unknown-elf/10.2.0/libgcc.a(div.o)
  .riscv.attributes
-                0x00000000000000d1       0x1c /opt/riscv32i/lib/gcc/riscv32-unknown-elf/10.2.0/libgcc.a(_clz.o)
+                0x00000000000000d5       0x1c /opt/riscv32i/lib/gcc/riscv32-unknown-elf/10.2.0/libgcc.a(_clz.o)
 
 .comment        0x0000000000000000       0x12
  .comment       0x0000000000000000       0x12 rom.o

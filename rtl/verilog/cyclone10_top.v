@@ -153,6 +153,7 @@ soc_vex core
   .uart0_srx_pad_i	(arduino_io[11]),
   .uart0_stx_pad_o	(arduino_io[12]),
 
+  .button(user_pb),
   .gpio0_io (user_led[3:0])
 );
 

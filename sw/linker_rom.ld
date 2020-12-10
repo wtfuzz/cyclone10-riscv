@@ -15,7 +15,7 @@ MEMORY {
   RAM      (rwx): ORIGIN = 0x80000000, LENGTH = 8k
 }
 
-_stack_size = DEFINED(_stack_size) ? _stack_size : 512;
+_stack_size = DEFINED(_stack_size) ? _stack_size : 1024;
 _heap_size = DEFINED(_heap_size) ? _heap_size : 1024;
 
 SECTIONS {
